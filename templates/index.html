@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>뉴스 브리핑</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-icon">📰</div>
+      <h1 class="header-title">뉴스 브리핑</h1>
+      <p class="header-subtitle">관심 키워드의 최신 뉴스를 AI가 요약해 드립니다</p>
+    </header>
+
+    <!-- Keyword Input Section -->
+    <section class="input-section">
+      <h2 class="section-title">관심 키워드 입력</h2>
+      <p class="section-hint">최대 5개의 키워드를 입력하세요</p>
+
+      <div class="keywords-wrapper" id="keywordsWrapper">
+        <div class="keyword-row" data-index="0">
+          <span class="keyword-number">1</span>
+          <input
+            type="text"
+            class="keyword-input"
+            placeholder="예: 인공지능, 주식시장, 기후변화..."
+            maxlength="50"
+          />
+          <button class="btn-remove" onclick="removeKeyword(this)" title="삭제">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <button class="btn-add" id="addKeywordBtn" onclick="addKeyword()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"></line>
+          <line x1="5" y1="12" x2="19" y2="12"></line>
+        </svg>
+        키워드 추가
+      </button>
+
+      <button class="btn-search" id="searchBtn" onclick="startSearch()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        뉴스 브리핑 시작
+      </button>
+    </section>
+
+    <!-- Loading -->
+    <div class="loading-section" id="loadingSection" style="display: none;">
+      <div class="loading-spinner"></div>
+      <p class="loading-text">뉴스를 검색하고 AI가 요약하는 중입니다...</p>
+      <p class="loading-sub">잠시만 기다려 주세요</p>
+    </div>
+
+    <!-- Error -->
+    <div class="error-section" id="errorSection" style="display: none;">
+      <div class="error-icon">⚠️</div>
+      <p class="error-text" id="errorText"></p>
+    </div>
+
+    <!-- Results -->
+    <section class="results-section" id="resultsSection" style="display: none;">
+      <div class="results-header">
+        <h2 class="section-title">뉴스 브리핑 결과</h2>
+        <span class="results-badge" id="resultsBadge"></span>
+      </div>
+      <div class="cards-grid" id="cardsGrid"></div>
+    </section>
+  </div>
+
+  <script>
+    const MAX_KEYWORDS = 5;
+
+    function updateNumbers() {
+      const rows = document.querySelectorAll('.keyword-row');
+      rows.forEach((row, i) => {
+        row.querySelector('.keyword-number').textContent = i + 1;
+        row.dataset.index = i;
+      });
+      // 삭제 버튼: 1개만 남으면 숨기기
+      document.querySelectorAll('.btn-remove').forEach(btn => {
+        btn.style.visibility = rows.length > 1 ? 'visible' : 'hidden';
+      });
+      // 추가 버튼: 5개 도달하면 숨기기
+      document.getElementById('addKeywordBtn').style.display =
+        rows.length >= MAX_KEYWORDS ? 'none' : 'flex';
+    }
+
+    function addKeyword() {
+      const wrapper = document.getElementById('keywordsWrapper');
+      if (wrapper.querySelectorAll('.keyword-row').length >= MAX_KEYWORDS) return;
+
+      const row = document.createElement('div');
+      row.className = 'keyword-row';
+      row.innerHTML = `
+        <span class="keyword-number"></span>
+        <input type="text" class="keyword-input" placeholder="키워드 입력..." maxlength="50" />
+        <button class="btn-remove" onclick="removeKeyword(this)" title="삭제">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      `;
+      wrapper.appendChild(row);
+      row.querySelector('.keyword-input').focus();
+      updateNumbers();
+    }
+
+    function removeKeyword(btn) {
+      const rows = document.querySelectorAll('.keyword-row');
+      if (rows.length <= 1) return;
+      btn.closest('.keyword-row').remove();
+      updateNumbers();
+    }
+
+    function getKeywords() {
+      return Array.from(document.querySelectorAll('.keyword-input'))
+        .map(input => input.value.trim())
+        .filter(v => v.length > 0);
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      return dateStr;
+    }
+
+    function renderCards(results) {
+      const grid = document.getElementById('cardsGrid');
+      grid.innerHTML = '';
+
+      results.forEach((item, i) => {
+        const card = document.createElement('div');
+        card.className = 'news-card';
+        card.style.animationDelay = `${i * 0.08}s`;
+
+        const articlesHTML = item.articles.length > 0
+          ? item.articles.map(a => `
+              <a href="${a.url}" target="_blank" rel="noopener noreferrer" class="article-link">
+                <div class="article-info">
+                  <span class="article-source">${a.source || '출처 없음'}</span>
+                  <span class="article-date">${a.publishedAt}</span>
+                </div>
+                <span class="article-title">${a.title}</span>
+                <svg class="article-arrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <line x1="7" y1="17" x2="17" y2="7"></line>
+                  <polyline points="7 7 17 7 17 17"></polyline>
+                </svg>
+              </a>
+            `).join('')
+          : '<p class="no-articles">관련 기사를 찾을 수 없습니다.</p>';
+
+        card.innerHTML = `
+          <div class="card-header">
+            <span class="card-tag">#${item.keyword}</span>
+          </div>
+          <div class="card-summary">
+            <div class="summary-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20z"></path>
+                <line x1="12" y1="16" x2="12" y2="12"></line>
+                <line x1="12" y1="8" x2="12.01" y2="8"></line>
+              </svg>
+              AI 요약
+            </div>
+            <p class="summary-text">${item.summary}</p>
+          </div>
+          <div class="card-articles">
+            <div class="articles-label">관련 기사 ${item.articles.length}건</div>
+            <div class="articles-list">${articlesHTML}</div>
+          </div>
+        `;
+
+        grid.appendChild(card);
+      });
+    }
+
+    async function startSearch() {
+      const keywords = getKeywords();
+      if (keywords.length === 0) {
+        alert('키워드를 최소 1개 이상 입력해 주세요.');
+        return;
+      }
+
+      // UI 상태 전환
+      document.getElementById('searchBtn').disabled = true;
+      document.getElementById('loadingSection').style.display = 'flex';
+      document.getElementById('errorSection').style.display = 'none';
+      document.getElementById('resultsSection').style.display = 'none';
+
+      try {
+        const response = await fetch('/search', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ keywords }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+          throw new Error(data.error || '서버 오류가 발생했습니다.');
+        }
+
+        document.getElementById('resultsBadge').textContent = `키워드 ${data.results.length}개`;
+        renderCards(data.results);
+        document.getElementById('resultsSection').style.display = 'block';
+        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch (err) {
+        document.getElementById('errorText').textContent = err.message;
+        document.getElementById('errorSection').style.display = 'flex';
+      } finally {
+        document.getElementById('loadingSection').style.display = 'none';
+        document.getElementById('searchBtn').disabled = false;
+      }
+    }
+
+    // 엔터키로 검색
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) startSearch();
+    });
+
+    // 초기화
+    updateNumbers();
+  </script>
+</body>
+</html>

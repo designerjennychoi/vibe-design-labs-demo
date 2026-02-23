@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2025 Best Selling Albums</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ───────────────────────────── RESET & BASE ───────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080808;
+      --surface: #111111;
+      --border: rgba(255,255,255,0.07);
+      --accent: #F5E642;
+      --accent2: #FF4D6D;
+      --text-primary: #F0EDE4;
+      --text-muted: rgba(240,237,228,0.45);
+      --card-w: 320px;
+      --card-h: 420px;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ───────────────────────────── CUSTOM CURSOR ───────────────────────────── */
+    #cursor {
+      position: fixed;
+      width: 12px; height: 12px;
+      background: var(--accent);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+      mix-blend-mode: difference;
+    }
+    #cursor.hovering {
+      width: 40px; height: 40px;
+      background: var(--accent);
+    }
+
+    /* ───────────────────────────── NOISE OVERLAY ───────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.03;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* ───────────────────────────── HERO ───────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      padding: 60px 64px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg-text {
+      position: absolute;
+      top: 50%;
+      left: -20px;
+      transform: translateY(-50%);
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(120px, 20vw, 260px);
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255,255,255,0.04);
+      letter-spacing: -4px;
+      pointer-events: none;
+      white-space: nowrap;
+      user-select: none;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 20px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s 0.2s forwards;
+    }
+
+    .hero-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: clamp(56px, 10vw, 130px);
+      line-height: 0.9;
+      letter-spacing: -2px;
+      opacity: 0;
+      transform: translateY(30px);
+      animation: fadeUp 0.8s 0.4s forwards;
+    }
+
+    .hero-title span {
+      color: var(--accent);
+      display: block;
+    }
+
+    .hero-subtitle {
+      margin-top: 28px;
+      font-size: 14px;
+      color: var(--text-muted);
+      max-width: 380px;
+      line-height: 1.7;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s 0.6s forwards;
+    }
+
+    .hero-meta {
+      display: flex;
+      gap: 40px;
+      margin-top: 48px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.8s 0.8s forwards;
+    }
+
+    .hero-meta-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hero-meta-item .label {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .hero-meta-item .value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 28px;
+      color: var(--text-primary);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      right: 64px;
+      bottom: 64px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      opacity: 0;
+      animation: fadeUp 0.8s 1.2s forwards;
+    }
+
+    .hero-scroll span {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      writing-mode: vertical-rl;
+    }
+
+    .scroll-line {
+      width: 1px;
+      height: 60px;
+      background: linear-gradient(to bottom, var(--accent), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+
+    /* ───────────────────────────── SOURCE TAG ───────────────────────────── */
+    .source-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(245, 230, 66, 0.08);
+      border: 1px solid rgba(245, 230, 66, 0.2);
+      border-radius: 4px;
+      padding: 6px 14px;
+      font-size: 11px;
+      letter-spacing: 1px;
+      color: var(--accent);
+      margin-top: 20px;
+      width: fit-content;
+      opacity: 0;
+      animation: fadeUp 0.8s 1s forwards;
+    }
+
+    /* ───────────────────────────── GRID SECTION ───────────────────────────── */
+    .grid-section {
+      padding: 80px 64px 160px;
+      position: relative;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 24px;
+      margin-bottom: 80px;
+    }
+
+    .section-label {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px;
+      letter-spacing: 6px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .section-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ───────────────────────────── OFFSET GRID ───────────────────────────── */
+    .offset-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 0;
+      position: relative;
+    }
+
+    /* 각 카드의 오프셋 패턴 */
+    .album-card:nth-child(1)  { grid-column: 1; margin-top: 0px;    margin-left: 0px; }
+    .album-card:nth-child(2)  { grid-column: 2; margin-top: 120px;  margin-left: 40px; }
+    .album-card:nth-child(3)  { grid-column: 3; margin-top: 40px;   margin-left: -20px; }
+    .album-card:nth-child(4)  { grid-column: 1; margin-top: -60px;  margin-left: 80px; }
+    .album-card:nth-child(5)  { grid-column: 2; margin-top: 80px;   margin-left: -30px; }
+    .album-card:nth-child(6)  { grid-column: 3; margin-top: -40px;  margin-left: 20px; }
+    .album-card:nth-child(7)  { grid-column: 1; margin-top: -30px;  margin-left: 50px; }
+    .album-card:nth-child(8)  { grid-column: 2; margin-top: 60px;   margin-left: -10px; }
+    .album-card:nth-child(9)  { grid-column: 3; margin-top: -80px;  margin-left: -40px; }
+    .album-card:nth-child(10) { grid-column: 2; margin-top: 40px;   margin-left: 60px; }
+
+    /* ───────────────────────────── ALBUM CARD ───────────────────────────── */
+    .album-card {
+      width: var(--card-w);
+      position: relative;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+      z-index: 2;
+    }
+
+    .album-card.visible { opacity: 1; transform: translateY(0); }
+    .album-card.expanded { z-index: 100; }
+
+    .card-inner {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+      cursor: none;
+      transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                  box-shadow 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                  border-color 0.3s ease;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .album-card:hover .card-inner {
+      border-color: rgba(245, 230, 66, 0.3);
+      box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 0 1px rgba(245,230,66,0.1);
+    }
+
+    /* ───────────────────────────── CARD COVER ───────────────────────────── */
+    .card-cover {
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .card-cover img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1), filter 0.3s ease;
+      display: block;
+    }
+
+    .album-card:hover .card-cover img {
+      transform: scale(1.06);
+    }
+
+    .rank-badge {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 64px;
+      line-height: 1;
+      color: var(--accent);
+      text-shadow: 0 0 30px rgba(245,230,66,0.4);
+      mix-blend-mode: normal;
+      z-index: 3;
+    }
+
+    .rank-badge.top3 {
+      font-size: 80px;
+      color: var(--accent);
+    }
+
+    .cover-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(8,8,8,0.9) 0%, transparent 60%);
+      z-index: 2;
+    }
+
+    /* ───────────────────────────── CARD BODY ───────────────────────────── */
+    .card-body {
+      padding: 20px 22px 22px;
+    }
+
+    .card-genre {
+      font-size: 10px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    .card-title {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 26px;
+      letter-spacing: 0.5px;
+      line-height: 1.1;
+      margin-bottom: 4px;
+      color: var(--text-primary);
+    }
+
+    .card-artist {
+      font-size: 13px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    .card-divider {
+      height: 1px;
+      background: var(--border);
+      margin: 16px 0;
+    }
+
+    .card-stats {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .stat-sales {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .stat-label {
+      font-size: 9px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+
+    .stat-value {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 22px;
+      color: var(--text-primary);
+    }
+
+    /* Sales bar */
+    .sales-bar-wrap {
+      flex: 1;
+      margin-left: 16px;
+    }
+
+    .sales-bar {
+      height: 3px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 4px;
+    }
+
+    .sales-bar-fill {
+      height: 100%;
+      background: linear-gradient(to right, var(--accent), var(--accent2));
+      border-radius: 2px;
+      transform-origin: left;
+      transform: scaleX(0);
+      transition: transform 1s cubic-bezier(0.23, 1, 0.32, 1) 0.2s;
+    }
+
+    .album-card.visible .sales-bar-fill {
+      transform: scaleX(1);
+    }
+
+    .sales-bar-label {
+      font-size: 9px;
+      color: var(--text-muted);
+      text-align: right;
+    }
+
+    /* Expand toggle */
+    .expand-btn {
+      width: 28px; height: 28px;
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 16px;
+      line-height: 1;
+      cursor: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 12px;
+      transition: border-color 0.2s, color 0.2s, transform 0.3s;
+      flex-shrink: 0;
+    }
+
+    .album-card.expanded .expand-btn {
+      transform: rotate(45deg);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* ───────────────────────────── EXPANDED PANEL ───────────────────────────── */
+    .card-expanded {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s cubic-bezier(0.23, 1, 0.32, 1),
+                  padding 0.3s ease;
+      padding: 0 22px;
+      border-top: 0px solid var(--border);
+    }
+
+    .album-card.expanded .card-expanded {
+      max-height: 500px;
+      padding: 20px 22px 22px;
+      border-top: 1px solid var(--border);
+    }
+
+    .expanded-section-title {
+      font-size: 9px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+    }
+
+    .track-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .track-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 10px;
+      border-radius: 2px;
+      transition: background 0.2s;
+    }
+
+    .track-item:hover { background: rgba(255,255,255,0.04); }
+
+    .track-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 16px;
+      color: var(--text-muted);
+      width: 20px;
+      text-align: right;
+    }
+
+    .track-name {
+      flex: 1;
+      font-size: 12px;
+      color: var(--text-primary);
+    }
+
+    .track-hit {
+      font-size: 9px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: rgba(245,230,66,0.08);
+      border: 1px solid rgba(245,230,66,0.2);
+      padding: 2px 6px;
+      border-radius: 2px;
+    }
+
+    .expanded-awards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .award-tag {
+      font-size: 10px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 2px;
+      color: var(--text-muted);
+      letter-spacing: 0.5px;
+    }
+
+    .expanded-context {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.8;
+      margin-bottom: 16px;
+    }
+
+    /* ───────────────────────────── FOOTER ───────────────────────────── */
+    .site-footer {
+      padding: 48px 64px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-sources {
+      font-size: 11px;
+      color: var(--text-muted);
+      line-height: 1.8;
+    }
+
+    .footer-sources a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .footer-sources a:hover { text-decoration: underline; }
+
+    .footer-brand {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 24px;
+      letter-spacing: 2px;
+      color: var(--text-muted);
+    }
+
+    /* ───────────────────────────── ANIMATIONS ───────────────────────────── */
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.4; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+
+    /* ───────────────────────────── RESPONSIVE ───────────────────────────── */
+    @media (max-width: 1100px) {
+      :root { --card-w: 260px; }
+      .offset-grid { grid-template-columns: 1fr 1fr; }
+      .album-card:nth-child(3)  { grid-column: 1; }
+      .album-card:nth-child(5)  { grid-column: 2; }
+      .album-card:nth-child(6)  { grid-column: 1; }
+      .album-card:nth-child(7)  { grid-column: 2; }
+      .album-card:nth-child(9)  { grid-column: 1; }
+      .album-card:nth-child(10) { grid-column: 2; }
+    }
+
+    @media (max-width: 700px) {
+      :root { --card-w: 100%; }
+      .grid-section { padding: 40px 20px 80px; }
+      .hero { padding: 40px 24px; }
+      .offset-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+      .album-card { margin: 0 !important; width: 100%; }
+      body { cursor: auto; }
+      #cursor { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Custom cursor -->
+  <div id="cursor"></div>
+
+  <!-- ─── HERO ─── -->
+  <section class="hero">
+    <div class="hero-bg-text">MUSIC</div>
+    <p class="hero-eyebrow">IFPI · Luminate · Billboard · 2025</p>
+    <h1 class="hero-title">
+      Best Selling<br>
+      <span>Albums</span>
+      of 2025
+    </h1>
+    <p class="hero-subtitle">
+      전 세계 음반 판매량, 스트리밍 환산 단위(EAU)를 기반으로 선정한
+      2025년 가장 많이 팔린 앨범 TOP 10.
+    </p>
+    <div class="source-tag">
+      ◈ IFPI Global Album Sales Chart + Luminate Midyear Report 기준
+    </div>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="label">TOP</span>
+        <span class="value">10</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Data Source</span>
+        <span class="value">IFPI</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Year</span>
+        <span class="value">2025</span>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Scroll</span>
+    </div>
+  </section>
+
+  <!-- ─── GRID SECTION ─── -->
+  <section class="grid-section">
+    <div class="section-header">
+      <span class="section-label">Chart Rankings</span>
+      <div class="section-line"></div>
+    </div>
+
+    <div class="offset-grid" id="albumGrid">
+
+      <!-- #1 Taylor Swift -->
+      <div class="album-card" data-index="0">
+        <div class="card-inner">
+          <div class="card-cover">
+            <div class="rank-badge top3">#1</div>
+            <div class="cover-overlay"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/0/06/Taylor_Swift_-_The_Life_of_a_Showgirl.png/220px-Taylor_Swift_-_The_Life_of_a_Showgirl.png"
+                 alt="The Life of a Showgirl"
+                 onerror="this.style.background='#1a1a2e';this.style.height='320px';this.alt='Cover N/A'" />
+          </div>
+          <div class="card-body">
+            <div class="card-genre">Pop · Country</div>
+            <div class="card-title">The Life of a Showgirl</div>
+            <div class="card-artist">Taylor Swift</div>
+            <div class="card-divider"></div>
+            <div class="card-stats">
+              <div class="stat-sales">
+                <span class="stat-label">Global Sales</span>
+                <span class="stat-value">6.05M EAU</span>
+              </div>
+              <div class="sales-bar-wrap">
+                <div class="sales-bar">
+                  <div class="sales-bar-fill" style="width:100%"></div>
+                </div>
+                <div class="sales-bar-label">IFPI #1</div>
+              </div>
+              <button class="expand-btn" onclick="toggleCard(this)">+</button>
+            </div>
+          </div>
+          <div class="card-expanded">
+            <p class="expanded-context">
+              IFPI 2025 글로벌 앨범 판매 차트 1위. 4년 연속 IFPI 글로벌 최다 판매 아티스트.
+              2025년 Eras Tour 관련 라이브 앨범 포함 다수 컬렉션 릴리즈.
+            </p>
+            <p class="expanded-section-title">Key Tracks</p>
+            <ul class="track-list">
+              <li class="track-item"><span class="track-num">1</span><span class="track-name">So High School</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">2</span><span class="track-name">The Smallest Man Who Ever Lived</span></li>
+              <li class="track-item"><span class="track-num">3</span><span class="track-name">I Can Do It With a Broken Heart</span></li>
+            </ul>
+            <p class="expanded-section-title">Notable</p>
+            <div class="expanded-awards">
+              <span class="award-tag">IFPI #1 GLOBAL 2025</span>
+              <span class="award-tag">4년 연속 최다판매 아티스트</span>
+              <span class="award-tag">6.05M EAU</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- #2 Stray Kids -->
+      <div class="album-card" data-index="1">
+        <div class="card-inner">
+          <div class="card-cover">
+            <div class="rank-badge top3">#2</div>
+            <div class="cover-overlay"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/5/5d/Stray_Kids_-_Karma.png/220px-Stray_Kids_-_Karma.png"
+                 alt="KARMA"
+                 onerror="this.style.background='#0d1b2a';this.style.height='320px'" />
+          </div>
+          <div class="card-body">
+            <div class="card-genre">K-Pop</div>
+            <div class="card-title">KARMA</div>
+            <div class="card-artist">Stray Kids</div>
+            <div class="card-divider"></div>
+            <div class="card-stats">
+              <div class="stat-sales">
+                <span class="stat-label">Global Sales</span>
+                <span class="stat-value">3.49M EAU</span>
+              </div>
+              <div class="sales-bar-wrap">
+                <div class="sales-bar">
+                  <div class="sales-bar-fill" style="width:57%"></div>
+                </div>
+                <div class="sales-bar-label">IFPI #2</div>
+              </div>
+              <button class="expand-btn" onclick="toggleCard(this)">+</button>
+            </div>
+          </div>
+          <div class="card-expanded">
+            <p class="expanded-context">
+              IFPI 글로벌 2위. Billboard 200 8회 연속 1위 데뷔로 그룹 최초 기록 달성.
+              K-pop 앨범 중 2025년 최고 판매량.
+            </p>
+            <p class="expanded-section-title">Key Tracks</p>
+            <ul class="track-list">
+              <li class="track-item"><span class="track-num">1</span><span class="track-name">MIROH</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">2</span><span class="track-name">Chk Chk Boom</span></li>
+              <li class="track-item"><span class="track-num">3</span><span class="track-name">Hall of Fame</span></li>
+            </ul>
+            <p class="expanded-section-title">Notable</p>
+            <div class="expanded-awards">
+              <span class="award-tag">IFPI #2</span>
+              <span class="award-tag">Billboard 200 8회 연속 1위</span>
+              <span class="award-tag">K-pop 2025 최다 판매</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- #3 Morgan Wallen -->
+      <div class="album-card" data-index="2">
+        <div class="card-inner">
+          <div class="card-cover">
+            <div class="rank-badge top3">#3</div>
+            <div class="cover-overlay"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/1/16/Morgan_Wallen_-_I%27m_the_Problem.png/220px-Morgan_Wallen_-_I%27m_the_Problem.png"
+                 alt="I'm the Problem"
+                 onerror="this.style.background='#1c1207';this.style.height='320px'" />
+          </div>
+          <div class="card-body">
+            <div class="card-genre">Country</div>
+            <div class="card-title">I'm the Problem</div>
+            <div class="card-artist">Morgan Wallen</div>
+            <div class="card-divider"></div>
+            <div class="card-stats">
+              <div class="stat-sales">
+                <span class="stat-label">US Sales</span>
+                <span class="stat-value">2.56M EAU</span>
+              </div>
+              <div class="sales-bar-wrap">
+                <div class="sales-bar">
+                  <div class="sales-bar-fill" style="width:42%"></div>
+                </div>
+                <div class="sales-bar-label">US #1 · 12wks</div>
+              </div>
+              <button class="expand-btn" onclick="toggleCard(this)">+</button>
+            </div>
+          </div>
+          <div class="card-expanded">
+            <p class="expanded-context">
+              2025년 미국 내 최다 판매 앨범 (Luminate). 첫 주 493,000 EAU로
+              2025년 최대 데뷔 기록. Billboard 200에서 비연속 12주 1위.
+            </p>
+            <p class="expanded-section-title">Key Tracks</p>
+            <ul class="track-list">
+              <li class="track-item"><span class="track-num">1</span><span class="track-name">I'm the Problem</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">2</span><span class="track-name">What I Want (ft. Tate McRae)</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">3</span><span class="track-name">Cowboys Cry Too</span></li>
+            </ul>
+            <p class="expanded-section-title">Notable</p>
+            <div class="expanded-awards">
+              <span class="award-tag">US 2025 최다판매 #1</span>
+              <span class="award-tag">Billboard 200 12주 1위</span>
+              <span class="award-tag">첫 주 493K EAU</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- #4 SEVENTEEN -->
+      <div class="album-card" data-index="3">
+        <div class="card-inner">
+          <div class="card-cover">
+            <div class="rank-badge">#4</div>
+            <div class="cover-overlay"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/3/3a/Seventeen_-_Spill_the_Feels.jpg/220px-Seventeen_-_Spill_the_Feels.jpg"
+                 alt="HAPPY BURSTDAY"
+                 onerror="this.style.background='#1a0d2e';this.style.height='320px'" />
+          </div>
+          <div class="card-body">
+            <div class="card-genre">K-Pop</div>
+            <div class="card-title">HAPPY BURSTDAY</div>
+            <div class="card-artist">SEVENTEEN</div>
+            <div class="card-divider"></div>
+            <div class="card-stats">
+              <div class="stat-sales">
+                <span class="stat-label">Global Sales</span>
+                <span class="stat-value">~3.0M EAU</span>
+              </div>
+              <div class="sales-bar-wrap">
+                <div class="sales-bar">
+                  <div class="sales-bar-fill" style="width:49%"></div>
+                </div>
+                <div class="sales-bar-label">IFPI #3</div>
+              </div>
+              <button class="expand-btn" onclick="toggleCard(this)">+</button>
+            </div>
+          </div>
+          <div class="card-expanded">
+            <p class="expanded-context">
+              IFPI 글로벌 차트 3위. 2025년 K-pop 두 번째 최다 판매 앨범.
+              SEVENTEEN 결성 10주년 기념 앨범.
+            </p>
+            <p class="expanded-section-title">Key Tracks</p>
+            <ul class="track-list">
+              <li class="track-item"><span class="track-num">1</span><span class="track-name">Spill the Feels</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">2</span><span class="track-name">MAESTRO</span></li>
+              <li class="track-item"><span class="track-num">3</span><span class="track-name">BIRTHDAY</span></li>
+            </ul>
+            <p class="expanded-section-title">Notable</p>
+            <div class="expanded-awards">
+              <span class="award-tag">IFPI #3</span>
+              <span class="award-tag">결성 10주년</span>
+              <span class="award-tag">~3.0M EAU</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- #5 SZA -->
+      <div class="album-card" data-index="4">
+        <div class="card-inner">
+          <div class="card-cover">
+            <div class="rank-badge">#5</div>
+            <div class="cover-overlay"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/c/ce/SZA_-_SOS.png/220px-SZA_-_SOS.png"
+                 alt="SOS"
+                 onerror="this.style.background='#0a1a0a';this.style.height='320px'" />
+          </div>
+          <div class="card-body">
+            <div class="card-genre">R&B · Soul</div>
+            <div class="card-title">SOS</div>
+            <div class="card-artist">SZA</div>
+            <div class="card-divider"></div>
+            <div class="card-stats">
+              <div class="stat-sales">
+                <span class="stat-label">US Sales</span>
+                <span class="stat-value">1.71M EAU</span>
+              </div>
+              <div class="sales-bar-wrap">
+                <div class="sales-bar">
+                  <div class="sales-bar-fill" style="width:28%"></div>
+                </div>
+                <div class="sales-bar-label">US #2 Midyear</div>
+              </div>
+              <button class="expand-btn" onclick="toggleCard(this)">+</button>
+            </div>
+          </div>
+          <div class="card-expanded">
+            <p class="expanded-context">
+              Luminate 2025 상반기 미국 2위 (1.71M EAU). 2022년 릴리즈 이후
+              스트리밍 롱런으로 2025년에도 꾸준한 판매 지속.
+            </p>
+            <p class="expanded-section-title">Key Tracks</p>
+            <ul class="track-list">
+              <li class="track-item"><span class="track-num">1</span><span class="track-name">Kill Bill</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">2</span><span class="track-name">Shirt</span></li>
+              <li class="track-item"><span class="track-num">3</span><span class="track-name">Blind</span></li>
+            </ul>
+            <p class="expanded-section-title">Notable</p>
+            <div class="expanded-awards">
+              <span class="award-tag">US Midyear #2</span>
+              <span class="award-tag">스트리밍 롱런</span>
+              <span class="award-tag">1.71M EAU</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- #6 Kendrick Lamar -->
+      <div class="album-card" data-index="5">
+        <div class="card-inner">
+          <div class="card-cover">
+            <div class="rank-badge">#6</div>
+            <div class="cover-overlay"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/d/d5/Kendrick_Lamar_-_GNX.png/220px-Kendrick_Lamar_-_GNX.png"
+                 alt="GNX"
+                 onerror="this.style.background='#0d0d0d';this.style.height='320px'" />
+          </div>
+          <div class="card-body">
+            <div class="card-genre">Hip-Hop · Rap</div>
+            <div class="card-title">GNX</div>
+            <div class="card-artist">Kendrick Lamar</div>
+            <div class="card-divider"></div>
+            <div class="card-stats">
+              <div class="stat-sales">
+                <span class="stat-label">US Sales</span>
+                <span class="stat-value">1.71M EAU</span>
+              </div>
+              <div class="sales-bar-wrap">
+                <div class="sales-bar">
+                  <div class="sales-bar-fill" style="width:28%"></div>
+                </div>
+                <div class="sales-bar-label">US #3 Midyear</div>
+              </div>
+              <button class="expand-btn" onclick="toggleCard(this)">+</button>
+            </div>
+          </div>
+          <div class="card-expanded">
+            <p class="expanded-context">
+              슈퍼볼 LIX 하프타임 쇼 수행 + Drake 디스트랙 열풍으로 2025년 내내
+              스트리밍 상위권 유지. Luminate 상반기 미국 3위.
+            </p>
+            <p class="expanded-section-title">Key Tracks</p>
+            <ul class="track-list">
+              <li class="track-item"><span class="track-num">1</span><span class="track-name">squabble up</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">2</span><span class="track-name">luther (ft. SZA)</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">3</span><span class="track-name">man at the garden</span></li>
+            </ul>
+            <p class="expanded-section-title">Notable</p>
+            <div class="expanded-awards">
+              <span class="award-tag">슈퍼볼 LIX 하프타임</span>
+              <span class="award-tag">US Midyear #3</span>
+              <span class="award-tag">Grammy 5관왕</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- #7 Bad Bunny -->
+      <div class="album-card" data-index="6">
+        <div class="card-inner">
+          <div class="card-cover">
+            <div class="rank-badge">#7</div>
+            <div class="cover-overlay"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/1/13/Bad_Bunny_-_DeBi_TiRAR_MaS_FOToS.png/220px-Bad_Bunny_-_DeBi_TiRAR_MaS_FOToS.png"
+                 alt="DeBÍ TiRAR MáS FOToS"
+                 onerror="this.style.background='#1a1200';this.style.height='320px'" />
+          </div>
+          <div class="card-body">
+            <div class="card-genre">Latin · Reggaeton</div>
+            <div class="card-title">DeBÍ TiRAR MáS FOToS</div>
+            <div class="card-artist">Bad Bunny</div>
+            <div class="card-divider"></div>
+            <div class="card-stats">
+              <div class="stat-sales">
+                <span class="stat-label">US Sales</span>
+                <span class="stat-value">1.65M EAU</span>
+              </div>
+              <div class="sales-bar-wrap">
+                <div class="sales-bar">
+                  <div class="sales-bar-fill" style="width:27%"></div>
+                </div>
+                <div class="sales-bar-label">US #4 Midyear</div>
+              </div>
+              <button class="expand-btn" onclick="toggleCard(this)">+</button>
+            </div>
+          </div>
+          <div class="card-expanded">
+            <p class="expanded-context">
+              2025년 1월 릴리즈 후 즉각적인 글로벌 히트. 푸에르토리코 문화 정체성을
+              담은 프로젝트로 비평적 · 상업적 성공 동시 달성.
+            </p>
+            <p class="expanded-section-title">Key Tracks</p>
+            <ul class="track-list">
+              <li class="track-item"><span class="track-num">1</span><span class="track-name">EL APAGÓN</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">2</span><span class="track-name">PIToRRO DE COCO</span></li>
+              <li class="track-item"><span class="track-num">3</span><span class="track-name">BAILE INoLVIDABLE</span></li>
+            </ul>
+            <p class="expanded-section-title">Notable</p>
+            <div class="expanded-awards">
+              <span class="award-tag">US Midyear #4</span>
+              <span class="award-tag">Latin 차트 석권</span>
+              <span class="award-tag">1.65M EAU</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- #8 Sabrina Carpenter -->
+      <div class="album-card" data-index="7">
+        <div class="card-inner">
+          <div class="card-cover">
+            <div class="rank-badge">#8</div>
+            <div class="cover-overlay"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/1/19/Sabrina_Carpenter_-_Short_n%27_Sweet.png/220px-Sabrina_Carpenter_-_Short_n%27_Sweet.png"
+                 alt="Short n' Sweet"
+                 onerror="this.style.background='#1a0a12';this.style.height='320px'" />
+          </div>
+          <div class="card-body">
+            <div class="card-genre">Pop</div>
+            <div class="card-title">Short n' Sweet</div>
+            <div class="card-artist">Sabrina Carpenter</div>
+            <div class="card-divider"></div>
+            <div class="card-stats">
+              <div class="stat-sales">
+                <span class="stat-label">UK Sales</span>
+                <span class="stat-value">444K · US 1.33M</span>
+              </div>
+              <div class="sales-bar-wrap">
+                <div class="sales-bar">
+                  <div class="sales-bar-fill" style="width:22%"></div>
+                </div>
+                <div class="sales-bar-label">UK #1 · US #5</div>
+              </div>
+              <button class="expand-btn" onclick="toggleCard(this)">+</button>
+            </div>
+          </div>
+          <div class="card-expanded">
+            <p class="expanded-context">
+              영국 2025년 최다 판매 앨범 1위 (444,000 chart units). 미국 Luminate 상반기 5위.
+              2024년 릴리즈 이후 2025년에도 롱런 중.
+            </p>
+            <p class="expanded-section-title">Key Tracks</p>
+            <ul class="track-list">
+              <li class="track-item"><span class="track-num">1</span><span class="track-name">Espresso</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">2</span><span class="track-name">Please Please Please</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">3</span><span class="track-name">Taste</span></li>
+            </ul>
+            <p class="expanded-section-title">Notable</p>
+            <div class="expanded-awards">
+              <span class="award-tag">UK 2025 #1</span>
+              <span class="award-tag">US Midyear #5</span>
+              <span class="award-tag">444K UK units</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- #9 ENHYPEN -->
+      <div class="album-card" data-index="8">
+        <div class="card-inner">
+          <div class="card-cover">
+            <div class="rank-badge">#9</div>
+            <div class="cover-overlay"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/9/9c/Enhypen_-_Desire_Unleash.jpg/220px-Enhypen_-_Desire_Unleash.jpg"
+                 alt="DESIRE: UNLEASH"
+                 onerror="this.style.background='#0a0a1a';this.style.height='320px'" />
+          </div>
+          <div class="card-body">
+            <div class="card-genre">K-Pop</div>
+            <div class="card-title">DESIRE: UNLEASH</div>
+            <div class="card-artist">ENHYPEN</div>
+            <div class="card-divider"></div>
+            <div class="card-stats">
+              <div class="stat-sales">
+                <span class="stat-label">Global Sales</span>
+                <span class="stat-value">~2.5M EAU</span>
+              </div>
+              <div class="sales-bar-wrap">
+                <div class="sales-bar">
+                  <div class="sales-bar-fill" style="width:41%"></div>
+                </div>
+                <div class="sales-bar-label">IFPI #4</div>
+              </div>
+              <button class="expand-btn" onclick="toggleCard(this)">+</button>
+            </div>
+          </div>
+          <div class="card-expanded">
+            <p class="expanded-context">
+              IFPI 글로벌 차트 4위. 2025년 K-pop 세 번째 최다 판매.
+              데뷔 이래 최고 판매 기록을 경신한 앨범.
+            </p>
+            <p class="expanded-section-title">Key Tracks</p>
+            <ul class="track-list">
+              <li class="track-item"><span class="track-num">1</span><span class="track-name">FEVER</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">2</span><span class="track-name">Bite Me</span></li>
+              <li class="track-item"><span class="track-num">3</span><span class="track-name">Chaconne</span></li>
+            </ul>
+            <p class="expanded-section-title">Notable</p>
+            <div class="expanded-awards">
+              <span class="award-tag">IFPI #4</span>
+              <span class="award-tag">데뷔 최고 판매</span>
+              <span class="award-tag">~2.5M EAU</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- #10 G-Dragon -->
+      <div class="album-card" data-index="9">
+        <div class="card-inner">
+          <div class="card-cover">
+            <div class="rank-badge">#10</div>
+            <div class="cover-overlay"></div>
+            <img src="https://upload.wikimedia.org/wikipedia/en/thumb/5/5d/G-Dragon_-_%C3%9Cbermensch.png/220px-G-Dragon_-_%C3%9Cbermensch.png"
+                 alt="Übermensch"
+                 onerror="this.style.background='#1a0d00';this.style.height='320px'" />
+          </div>
+          <div class="card-body">
+            <div class="card-genre">K-Pop · Hip-Hop</div>
+            <div class="card-title">Übermensch</div>
+            <div class="card-artist">G-Dragon</div>
+            <div class="card-divider"></div>
+            <div class="card-stats">
+              <div class="stat-sales">
+                <span class="stat-label">Global Sales</span>
+                <span class="stat-value">~2.0M EAU</span>
+              </div>
+              <div class="sales-bar-wrap">
+                <div class="sales-bar">
+                  <div class="sales-bar-fill" style="width:33%"></div>
+                </div>
+                <div class="sales-bar-label">IFPI #10</div>
+              </div>
+              <button class="expand-btn" onclick="toggleCard(this)">+</button>
+            </div>
+          </div>
+          <div class="card-expanded">
+            <p class="expanded-context">
+              IFPI 글로벌 차트 10위. 군 복무 이후 복귀작으로 컴백과 동시에
+              글로벌 판매 차트 진입. G-Dragon 솔로 커리어 최고 판매 기록.
+            </p>
+            <p class="expanded-section-title">Key Tracks</p>
+            <ul class="track-list">
+              <li class="track-item"><span class="track-num">1</span><span class="track-name">POWER</span><span class="track-hit">HIT</span></li>
+              <li class="track-item"><span class="track-num">2</span><span class="track-name">HOME SWEET HOME</span></li>
+              <li class="track-item"><span class="track-num">3</span><span class="track-name">Übermensch</span></li>
+            </ul>
+            <p class="expanded-section-title">Notable</p>
+            <div class="expanded-awards">
+              <span class="award-tag">IFPI #10</span>
+              <span class="award-tag">군복무 후 복귀</span>
+              <span class="award-tag">솔로 최고 판매</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /.offset-grid -->
+  </section>
+
+  <!-- ─── FOOTER ─── -->
+  <footer class="site-footer">
+    <div class="footer-sources">
+      <strong style="color:var(--text-primary);display:block;margin-bottom:6px">Data Sources</strong>
+      <a href="https://www.ifpi.org/taylor-swifts-the-life-of-a-showgirl-named-ifpis-official-biggest-selling-global-album-of-the-year-2025/" target="_blank">IFPI Global Album Sales Chart 2025</a> ·
+      <a href="https://www.billboard.com/music/chart-beat/morgan-wallen-kendrick-lamar-luminate-2025-midyear-charts-1236022530/" target="_blank">Luminate Midyear Report 2025</a> ·
+      <a href="https://www.officialcharts.com/chart-news/the-official-biggest-albums-of-2025-so-far/" target="_blank">UK Official Charts 2025</a>
+    </div>
+    <div class="footer-brand">2025 ALBUMS</div>
+  </footer>
+
+  <script>
+    /* ─── CURSOR ─── */
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top  = e.clientY + 'px';
+    });
+    document.querySelectorAll('.card-inner, .expand-btn, a').forEach(el => {
+      el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
+      el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+    });
+
+    /* ─── SCROLL REVEAL ─── */
+    const cards = document.querySelectorAll('.album-card');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          const card = entry.target;
+          const delay = (parseInt(card.dataset.index) % 3) * 120;
+          setTimeout(() => card.classList.add('visible'), delay);
+          observer.unobserve(card);
+        }
+      });
+    }, { threshold: 0.15 });
+
+    cards.forEach(card => observer.observe(card));
+
+    /* ─── 3D TILT ─── */
+    document.querySelectorAll('.card-inner').forEach(inner => {
+      inner.addEventListener('mousemove', e => {
+        const rect = inner.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width  - 0.5;
+        const y = (e.clientY - rect.top)  / rect.height - 0.5;
+        inner.style.transform = `perspective(800px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) scale(1.02)`;
+      });
+      inner.addEventListener('mouseleave', () => {
+        inner.style.transform = '';
+      });
+    });
+
+    /* ─── CARD EXPAND ─── */
+    function toggleCard(btn) {
+      const card = btn.closest('.album-card');
+      const isExpanded = card.classList.contains('expanded');
+
+      // 다른 카드 닫기
+      document.querySelectorAll('.album-card.expanded').forEach(c => {
+        if (c !== card) c.classList.remove('expanded');
+      });
+
+      card.classList.toggle('expanded', !isExpanded);
+
+      // 열릴 때 스크롤하여 카드가 보이게
+      if (!isExpanded) {
+        setTimeout(() => {
+          card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+      }
+    }
+  </script>
+</body>
+</html>
